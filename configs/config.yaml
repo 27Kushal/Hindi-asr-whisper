@@ -1,0 +1,60 @@
+# ─────────────────────────────────────────────
+#  Whisper + LoRA Fine-tuning Config
+#  Change `language` and `language_code` to
+#  switch between supported Indian languages.
+# ─────────────────────────────────────────────
+
+model:
+  base: "openai/whisper-small"      # whisper-tiny | whisper-small | whisper-medium
+  language: "hindi"                 # tamil | telugu | kannada | hindi | odia | marathi
+  language_code: "hi"               # ISO 639-1 code
+  task: "transcribe"
+
+lora:
+  r: 32                             # rank — higher = more capacity, more params
+  lora_alpha: 64                    # scaling factor (usually 2x r)
+  lora_dropout: 0.05
+  bias: "none"
+  target_modules:
+    - "q_proj"
+    - "v_proj"
+
+data:
+  dataset_name: "google/fleurs"
+  language_code: "hi_in"
+  max_audio_duration_sec: 30
+  min_audio_duration_sec: 1.0
+  train_split: "train"
+  eval_split: "validation"
+  test_split: "test"
+  max_train_samples: null
+  max_eval_samples: 500
+
+training:
+  output_dir: "./models/whisper-lora-hindi"
+  per_device_train_batch_size: 4
+  per_device_eval_batch_size: 4
+  gradient_accumulation_steps: 4   # effective batch = 8 * 4 = 32
+  learning_rate: 1.0e-4
+  warmup_steps: 100
+  num_train_epochs: 10
+  eval_steps: 500
+  save_steps: 500
+  logging_steps: 25
+  fp16: false                       # use bf16: true on A100/H100
+  bf16: false
+  dataloader_num_workers: 0
+  load_best_model_at_end: true
+  metric_for_best_model: "wer"
+  greater_is_better: false
+  gradient_checkpointing: false      # saves VRAM at cost of speed
+  optim: "adamw_torch"
+  weight_decay: 0.01
+  report_to: "tensorboard"
+  push_to_hub: false
+
+inference:
+  beam_size: 5
+  temperature: 0.0
+  compression_ratio_threshold: 2.4
+  no_speech_threshold: 0.6

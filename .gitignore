@@ -1,0 +1,17 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+
+# Model files (too large for GitHub)
+models/
+data/
+
+# Mac
+.DS_Store
+
+# Logs
+*.log
+runs/
