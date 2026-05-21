@@ -1,18 +1,18 @@
-# ─────────────────────────────────────────────
-#  Whisper + LoRA Fine-tuning Config
-#  Change `language` and `language_code` to
-#  switch between supported Indian languages.
-# ─────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────
+#  Whisper + PEFT LoRA Fine-tuning Config
+#  Switch languages by changing `language` / `language_code`.
+#  Use per-language overrides in configs/languages/*.yaml.
+# ─────────────────────────────────────────────────────────────
 
 model:
   base: "openai/whisper-small"      # whisper-tiny | whisper-small | whisper-medium
-  language: "hindi"                 # tamil | telugu | kannada | hindi | odia | marathi
+  language: "hindi"                 # hindi | tamil | telugu | kannada | marathi | odia
   language_code: "hi"               # ISO 639-1 code
   task: "transcribe"
 
 lora:
-  r: 32                             # rank — higher = more capacity, more params
-  lora_alpha: 64                    # scaling factor (usually 2x r)
+  r: 16                             # rank — higher = more capacity, more params
+  lora_alpha: 32                    # scaling factor (2x r is standard)
   lora_dropout: 0.05
   bias: "none"
   target_modules:
@@ -20,34 +20,35 @@ lora:
     - "v_proj"
 
 data:
-  dataset_name: "google/fleurs"
-  language_code: "hi_in"
+  dataset_name: "google/fleurs"     # "google/fleurs" (real speech) or "local" (TTS)
+  language_code: "hi_in"            # FLEURS code — e.g. hi_in, ta_in, te_in, mr_in
+  local_data_dir: "data/hindi_tts"  # used only when dataset_name == "local"
   max_audio_duration_sec: 30
   min_audio_duration_sec: 1.0
   train_split: "train"
   eval_split: "validation"
   test_split: "test"
-  max_train_samples: null
+  max_train_samples: null           # null = use full split
   max_eval_samples: 500
 
 training:
   output_dir: "./models/whisper-lora-hindi"
   per_device_train_batch_size: 4
   per_device_eval_batch_size: 4
-  gradient_accumulation_steps: 4   # effective batch = 8 * 4 = 32
+  gradient_accumulation_steps: 4   # effective batch = 4 * 4 = 16
   learning_rate: 1.0e-4
   warmup_steps: 100
   num_train_epochs: 10
-  eval_steps: 500
-  save_steps: 500
+  eval_steps: 200
+  save_steps: 200
   logging_steps: 25
-  fp16: false                       # use bf16: true on A100/H100
-  bf16: false
+  fp16: false                       # set true on CUDA (not MPS)
+  bf16: false                       # set true on A100/H100
   dataloader_num_workers: 0
   load_best_model_at_end: true
   metric_for_best_model: "wer"
   greater_is_better: false
-  gradient_checkpointing: false      # saves VRAM at cost of speed
+  gradient_checkpointing: false
   optim: "adamw_torch"
   weight_decay: 0.01
   report_to: "tensorboard"
