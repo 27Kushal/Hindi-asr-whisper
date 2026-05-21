@@ -4,15 +4,37 @@ __pycache__/
 *.pyc
 *.pyo
 *.egg-info/
+*.egg/
+.Python
 
-# Model files (too large for GitHub)
+# Model checkpoints (too large for GitHub — push adapter to HF Hub instead)
 models/
 data/
 
-# Mac
-.DS_Store
-
-# Logs
+# Logs and TensorBoard
 *.log
 runs/
+tensorboard/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# Mac
 .DS_Store
+**/.DS_Store
+
+# Claude Code internal files (not project code)
+CLAUDE.md
+.claude/
+
+# Environment / secrets
+.env
+*.env
+*.key
+credentials.json
+
+# Build artifacts
+dist/
+build/
+*.so
