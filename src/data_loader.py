@@ -72,7 +72,6 @@ class IndicDataLoader:
                     "google/fleurs",
                     self.config.language_code,
                     split=hf_split,
-                    trust_remote_code=True,
                 )
             except Exception as e:
                 logger.warning(f"Could not load FLEURS split '{hf_split}': {e}")
